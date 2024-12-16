@@ -67,15 +67,24 @@ public class Functions {
             case Button.NUMBER_1: case Button.NUMBER_2: case Button.NUMBER_3: 
             case Button.NUMBER_4: case Button.NUMBER_5: case Button.NUMBER_6: 
             case Button.NUMBER_7: case Button.NUMBER_8: case Button.NUMBER_9: 
-                if(label.getText().charAt(0) == '0')
+                if(label.getText().length() == 1 && label.getText().charAt(0) == '0' && button != Button.POINT)
                     label.setText("");
                 if(isOperatorUsed || isEqualsUsed || isError) {
                     label.setText("");
                     isOperatorUsed = false;
                     isEqualsUsed = false;
                     isError = false;
+                    if(button == Button.POINT) {
+                        label.setText(label.getText().concat("0"));
+                    }
                 }
+
                 label.setText(decimalFormat.format(Double.parseDouble(label.getText().concat(button.text).replace(",", ""))));
+
+                if(button == Button.POINT) {
+                    label.setText(label.getText().concat("."));
+                }
+                    
 
                 if(label.getText().length() > MAX_CHARACTERS) {
                     label.setText(decimalFormat.format(Double.parseDouble(label.getText().replace(",", "").substring(0, MAX_CHARACTERS-3))));
@@ -101,6 +110,9 @@ public class Functions {
                     isOperatorUsed = false;
                 }
                 else if(operator == 0 && !isOperatorUsed && !isError) {
+                    if(label.getText().charAt(label.getText().length() - 1) == '.')
+                        label.setText(label.getText().replace(".", ""));
+
                     firstOperand = Double.parseDouble(label.getText().replace(",", ""));
                     operator = button.text.charAt(0);   
                 }
