@@ -10,11 +10,14 @@ import javax.swing.JLabel;
 public class Functions {
     private final int BUTTON_WIDTH = 90, BUTTON_HEIGHT = 65;
 
-    Button[] buttons = Button.values();
-    JButton[] guiButtons = new JButton[Button.values().length];
+    private Button[] buttons = Button.values();
+    private JButton[] guiButtons = new JButton[Button.values().length];
 
     private JLabel label;
-    private int firstOperand, secondOperand, operator;
+
+    private int firstOperand = -1, secondOperand = -1;
+    private char operator = 0;
+    private boolean operated = false;
 
     public Functions(JLabel label) {
         label.setText("0");
@@ -50,6 +53,10 @@ public class Functions {
             case Button.NUMBER_7: case Button.NUMBER_8: case Button.NUMBER_9:
                 if(label.getText().charAt(0) == '0')
                     label.setText("");
+                if(operated == true) {
+                    label.setText("");
+                    operated = false;
+                }
                 label.setText(label.getText().concat(button.text));
                 break;
                 
@@ -60,14 +67,55 @@ public class Functions {
                 break;
 
             case Button.ALL_CLEAR: 
+                firstOperand = secondOperand = -1;
+                operator = 0;
                 label.setText("0");
                 break; 
 
-            case Button.PLUS: 
-                firstOperand = Integer.parseInt(label.toString());
+            case Button.PLUS: case Button.MINUS: case Button.TIMES: case Button.DIVIDE: case Button.MODULUS:
+                if(operator == 0) {
+                    firstOperand = Integer.parseInt(label.getText());
+                    operator = button.text.charAt(0);   
+                }
+                else if(secondOperand == -1) {
+                    secondOperand = Integer.parseInt(label.getText());
+                    firstOperand = calculate(firstOperand, secondOperand, operator);
+                    operator = button.text.charAt(0);
+                    secondOperand = -1;
+                    label.setText(String.valueOf(firstOperand));
+                }
+                operated = true;
                 break;
-                
+
+            case Button.EQUALS:
+                if(operator != 0) {
+                    secondOperand = Integer.parseInt(label.getText());
+                    label.setText(String.valueOf(calculate(firstOperand, secondOperand, operator)));
+                    firstOperand = secondOperand = -1;
+                    operator = 0;
+                    operated = true;
+                }
+
+            
         }
+    }
+
+    private int calculate(int firstOperand, int secondOperand, char operator) {
+        switch(operator) {
+            case '+':
+                return firstOperand + secondOperand;
+            case '-':
+                if(firstOperand < secondOperand)
+                    return 0;
+                return firstOperand - secondOperand; 
+            case '*':
+                return firstOperand * secondOperand; 
+            case '/':
+                return firstOperand / secondOperand; 
+            case '%':
+                return firstOperand % secondOperand; 
+        }
+        return -1;
     }
 }
 
