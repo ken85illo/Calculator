@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -11,16 +12,20 @@ import javax.swing.JLabel;
 
 public class Functions {
     private final int BUTTON_WIDTH = 90, BUTTON_HEIGHT = 65;
+    private final int MAX_CHARACTERS = 15;
 
     private Button[] buttons = Button.values();
     private JButton[] guiButtons = new JButton[Button.values().length];
 
     private JLabel label;
 
-    private int firstOperand = -1, secondOperand = -1;
+    private DecimalFormat decimalFormat = new DecimalFormat("#,###.##########");
+    
+    private double firstOperand = -1, secondOperand = -1;
     private char operator = 0;
     private boolean isOperatorUsed = false;
     private boolean isEqualsUsed = false;
+    private boolean isError = false;
 
     public Functions(JLabel label) {
         label.setText("0");
@@ -54,19 +59,28 @@ public class Functions {
     };
 
     private void checkButton(Button button) throws InterruptedException {
+        
         this.setTextWithDelayEffect(label.getText());
+
         switch(button) {
-            case Button.NUMBER_0: case Button.NUMBER_1: case Button.NUMBER_2: case Button.NUMBER_3: 
+            case Button.POINT: case Button.NUMBER_0: 
+            case Button.NUMBER_1: case Button.NUMBER_2: case Button.NUMBER_3: 
             case Button.NUMBER_4: case Button.NUMBER_5: case Button.NUMBER_6: 
-            case Button.NUMBER_7: case Button.NUMBER_8: case Button.NUMBER_9:
+            case Button.NUMBER_7: case Button.NUMBER_8: case Button.NUMBER_9: 
                 if(label.getText().charAt(0) == '0')
                     label.setText("");
-                if(isOperatorUsed == true || isEqualsUsed == true) {
+                if(isOperatorUsed || isEqualsUsed || isError) {
                     label.setText("");
                     isOperatorUsed = false;
                     isEqualsUsed = false;
+                    isError = false;
                 }
-                label.setText(label.getText().concat(button.text));
+                label.setText(decimalFormat.format(Double.parseDouble(label.getText().concat(button.text).replace(",", ""))));
+
+                if(label.getText().length() > MAX_CHARACTERS) {
+                    label.setText(decimalFormat.format(Double.parseDouble(label.getText().replace(",", "").substring(0, MAX_CHARACTERS-3))));
+                }   
+
                 break;
                 
             case Button.DELETE: 
@@ -86,34 +100,46 @@ public class Functions {
                     operator = button.text.charAt(0);  
                     isOperatorUsed = false;
                 }
-                else if(operator == 0 && !isOperatorUsed) {
-                    firstOperand = Integer.parseInt(label.getText());
+                else if(operator == 0 && !isOperatorUsed && !isError) {
+                    firstOperand = Double.parseDouble(label.getText().replace(",", ""));
                     operator = button.text.charAt(0);   
                 }
-                else if(secondOperand == -1 && !isOperatorUsed) {
-                    secondOperand = Integer.parseInt(label.getText());
+                else if(secondOperand == -1 && !isOperatorUsed && !isError) {
+                    secondOperand = Double.parseDouble(label.getText().replace(",", ""));
+                    if(secondOperand == 0) {
+                        calculatorError();
+                        return;
+                    }
+
                     firstOperand = calculate(firstOperand, secondOperand, operator);
                     operator = button.text.charAt(0);
                     secondOperand = -1;
-                    label.setText(String.valueOf(firstOperand));
+                    
+                    label.setText(decimalFormat.format(firstOperand));
+                    limitCharacters(MAX_CHARACTERS, label.getText());
                 }
                 isOperatorUsed = true;
+                
                 break;
 
             case Button.EQUALS:
                 if(operator != 0) {
-                    secondOperand = Integer.parseInt(label.getText());
-                    label.setText(String.valueOf(calculate(firstOperand, secondOperand, operator)));
+                    secondOperand = Double.parseDouble(label.getText().replace(",", ""));
+                    if(secondOperand == 0) {
+                        calculatorError();
+                        return;
+                    }
+
+                    label.setText(decimalFormat.format(calculate(firstOperand, secondOperand, operator)));
+                    limitCharacters(MAX_CHARACTERS, label.getText());
                     firstOperand = secondOperand = -1;
                     operator = 0;
                     isEqualsUsed = true;
                 }
-
-            
         }
     }
 
-    private int calculate(int firstOperand, int secondOperand, char operator) {
+    private double calculate(double firstOperand, double secondOperand, char operator) {
         switch(operator) {
             case '+':
                 return firstOperand + secondOperand;
@@ -124,8 +150,6 @@ public class Functions {
             case '*':
                 return firstOperand * secondOperand; 
             case '/':
-                if(secondOperand == 0)
-                    return 0;
                 return firstOperand / secondOperand; 
             case '%':
                 return firstOperand % secondOperand; 
@@ -145,6 +169,24 @@ public class Functions {
             }
         };
         timer.schedule(task, 100);
+    }
+
+    private void limitCharacters(int size, String text) {
+        double pointedValue = Double.parseDouble(text.replace(",", ""));
+        if(text.length() > size) {
+            if((pointedValue - (long)pointedValue) == 0)  
+                calculatorError();
+            else
+                label.setText(decimalFormat.format(Double.parseDouble(label.getText().replace(",", "").substring(0, size-3))));;
+        }
+    }
+
+    private void calculatorError() {
+        label.setText("ERROR");
+        firstOperand = -1;
+        operator = 0;
+        secondOperand = -1;
+        isError = true;
     }
 }
 
