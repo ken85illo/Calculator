@@ -2,6 +2,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -17,7 +19,8 @@ public class Functions {
 
     private int firstOperand = -1, secondOperand = -1;
     private char operator = 0;
-    private boolean operated = false;
+    private boolean isOperatorUsed = false;
+    private boolean isEqualsUsed = false;
 
     public Functions(JLabel label) {
         label.setText("0");
@@ -41,21 +44,27 @@ public class Functions {
     private ActionListener listener = (e) -> {
         for (Button button : buttons) {
             if(e.getSource() == button.guiButton) {
-                checkButton(button);
+                try {
+                    checkButton(button);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
     };
 
-    private void checkButton(Button button) {
+    private void checkButton(Button button) throws InterruptedException {
+        this.setTextWithDelayEffect(label.getText());
         switch(button) {
             case Button.NUMBER_0: case Button.NUMBER_1: case Button.NUMBER_2: case Button.NUMBER_3: 
             case Button.NUMBER_4: case Button.NUMBER_5: case Button.NUMBER_6: 
             case Button.NUMBER_7: case Button.NUMBER_8: case Button.NUMBER_9:
                 if(label.getText().charAt(0) == '0')
                     label.setText("");
-                if(operated == true) {
+                if(isOperatorUsed == true || isEqualsUsed == true) {
                     label.setText("");
-                    operated = false;
+                    isOperatorUsed = false;
+                    isEqualsUsed = false;
                 }
                 label.setText(label.getText().concat(button.text));
                 break;
@@ -73,18 +82,22 @@ public class Functions {
                 break; 
 
             case Button.PLUS: case Button.MINUS: case Button.TIMES: case Button.DIVIDE: case Button.MODULUS:
-                if(operator == 0) {
+                if (operator != 0 && isOperatorUsed) {
+                    operator = button.text.charAt(0);  
+                    isOperatorUsed = false;
+                }
+                else if(operator == 0 && !isOperatorUsed) {
                     firstOperand = Integer.parseInt(label.getText());
                     operator = button.text.charAt(0);   
                 }
-                else if(secondOperand == -1) {
+                else if(secondOperand == -1 && !isOperatorUsed) {
                     secondOperand = Integer.parseInt(label.getText());
                     firstOperand = calculate(firstOperand, secondOperand, operator);
                     operator = button.text.charAt(0);
                     secondOperand = -1;
                     label.setText(String.valueOf(firstOperand));
                 }
-                operated = true;
+                isOperatorUsed = true;
                 break;
 
             case Button.EQUALS:
@@ -93,7 +106,7 @@ public class Functions {
                     label.setText(String.valueOf(calculate(firstOperand, secondOperand, operator)));
                     firstOperand = secondOperand = -1;
                     operator = 0;
-                    operated = true;
+                    isEqualsUsed = true;
                 }
 
             
@@ -111,11 +124,27 @@ public class Functions {
             case '*':
                 return firstOperand * secondOperand; 
             case '/':
+                if(secondOperand == 0)
+                    return 0;
                 return firstOperand / secondOperand; 
             case '%':
                 return firstOperand % secondOperand; 
         }
         return -1;
+    }
+
+    private void setTextWithDelayEffect(String text) throws InterruptedException {
+        label.setForeground(Color.GRAY);;
+        label.setText(text);
+
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {                
+                label.setForeground(Color.WHITE);
+            }
+        };
+        timer.schedule(task, 100);
     }
 }
 
