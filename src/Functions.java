@@ -12,14 +12,14 @@ import javax.swing.JLabel;
 
 public class Functions {
     private final int BUTTON_WIDTH = 90, BUTTON_HEIGHT = 65;
-    private final int MAX_CHARACTERS = 15;
+    private final int MAX_CHARACTERS = 14;
 
     private Button[] buttons = Button.values();
     private JButton[] guiButtons = new JButton[Button.values().length];
 
     private JLabel label;
 
-    private DecimalFormat decimalFormat = new DecimalFormat("#,###.##########");
+    private DecimalFormat decimalFormat = new DecimalFormat("#,###.############");
     
     private double firstOperand = -1, secondOperand = -1;
     private char operator = 0;
@@ -81,18 +81,16 @@ public class Functions {
                     }
                 }
 
-                if(button != Button.POINT)
-                    label.setText(decimalFormat.format(Double.parseDouble(label.getText().concat(button.text).replace(",", ""))));
+                if(label.getText().length() != MAX_CHARACTERS) {
+                    if(button != Button.POINT)
+                        label.setText(decimalFormat.format(Double.parseDouble(label.getText().concat(button.text).replace(",", ""))));
 
-                if(button == Button.POINT && !isDecimal) {
-                    label.setText(label.getText().concat("."));
-                    isDecimal = true;
+                    if(button == Button.POINT && !isDecimal) {
+                        label.setText(label.getText().concat("."));
+                        isDecimal = true;
+                    }
                 }
-
-                if(label.getText().length() > MAX_CHARACTERS) {
-                    label.setText(decimalFormat.format(Double.parseDouble(label.getText().replace(",", "").substring(0, MAX_CHARACTERS-3))));
-                }   
-
+                
                 break;
                 
             case Button.DELETE: 
@@ -195,10 +193,14 @@ public class Functions {
     private void limitCharacters(int size, String text) {
         double pointedValue = Double.parseDouble(text.replace(",", ""));
         if(text.length() > size) {
+            System.out.println((pointedValue - (long)pointedValue));
             if((pointedValue - (long)pointedValue) == 0)  
                 calculatorError();
-            else
-                label.setText(decimalFormat.format(Double.parseDouble(label.getText().replace(",", "").substring(0, size-3))));;
+            else {
+                System.out.println("Skibidi Toilet");
+                label.setText(decimalFormat.format(Double.parseDouble(text.replace(",", "").substring(0, size))));;
+
+            }
         }
     }
 
