@@ -26,6 +26,7 @@ public class Functions {
     private boolean isOperatorUsed = false;
     private boolean isEqualsUsed = false;
     private boolean isError = false;
+    private boolean isDecimal = false;
 
     public Functions(JLabel label) {
         label.setText("0");
@@ -74,17 +75,19 @@ public class Functions {
                     isOperatorUsed = false;
                     isEqualsUsed = false;
                     isError = false;
+                    isDecimal = false;
                     if(button == Button.POINT) {
                         label.setText(label.getText().concat("0"));
                     }
                 }
 
-                label.setText(decimalFormat.format(Double.parseDouble(label.getText().concat(button.text).replace(",", ""))));
+                if(button != Button.POINT)
+                    label.setText(decimalFormat.format(Double.parseDouble(label.getText().concat(button.text).replace(",", ""))));
 
-                if(button == Button.POINT) {
+                if(button == Button.POINT && !isDecimal) {
                     label.setText(label.getText().concat("."));
+                    isDecimal = true;
                 }
-                    
 
                 if(label.getText().length() > MAX_CHARACTERS) {
                     label.setText(decimalFormat.format(Double.parseDouble(label.getText().replace(",", "").substring(0, MAX_CHARACTERS-3))));
@@ -93,7 +96,12 @@ public class Functions {
                 break;
                 
             case Button.DELETE: 
+                if(label.getText().endsWith(".")) 
+                    isDecimal = false;
+
+
                 label.setText(label.getText().substring(0, label.getText().length() - 1));
+                
                 if(label.getText().equals(""))
                     label.setText("0");
                 break;
@@ -101,6 +109,7 @@ public class Functions {
             case Button.ALL_CLEAR: 
                 firstOperand = secondOperand = -1;
                 operator = 0;
+                isDecimal = false;
                 label.setText("0");
                 break; 
 
