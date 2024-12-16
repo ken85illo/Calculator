@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 public class Display extends JPanel{
     private final int PANEL_WIDTH = 400, PANEL_HEIGHT = 100;
+    private final int TEXT_GAP = 15;
     private JLabel label = new JLabel();
 
     public Display() {
@@ -18,10 +19,13 @@ public class Display extends JPanel{
         this.setLayout(null);
 
         this.add(label);
-        label.setBounds(0, 0, WIDTH - 15, HEIGHT);
-        label.setText("100/100");
+        label.setBounds(0, 0, PANEL_WIDTH - TEXT_GAP, PANEL_HEIGHT);
         label.setHorizontalAlignment(JLabel.RIGHT);
-        label.setForeground(Color.LIGHT_GRAY);
-        label.setFont(new Font("Open Sans", Font.PLAIN, 60));
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Open Sans", Font.PLAIN, 50));
+    }
+
+    public JLabel getLabel() {
+        return label;
     }
 }

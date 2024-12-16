@@ -4,15 +4,18 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 
 public class Calculator extends JFrame{
-    private final int WINDOW_WIDTH = 450, WINDOW_HEIGHT = 525; 
-    private static final int HORIZONTAL_GAP = 5, VERTICAL_GAP = 5;
+    private final int WINDOW_WIDTH = 450, WINDOW_HEIGHT = 505; 
+    private final int HORIZONTAL_GAP = 5, VERTICAL_GAP = 5;
     private final String TITLE = "Calculator";
 
     public static void main(String[] args) {
         Calculator calculator = new Calculator();
-        calculator.add(new Display());
 
-        for (JButton button : Functions.getButtons(VERTICAL_GAP)) 
+        Display display = new Display();
+        calculator.add(display);
+
+        Functions functions = new Functions(display.getLabel());
+        for (JButton button : functions.getButtons(calculator.VERTICAL_GAP)) 
             calculator.add(button);
 
         calculator.setVisible(true);

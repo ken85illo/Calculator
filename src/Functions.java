@@ -1,13 +1,77 @@
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 
-enum Buttons {
+public class Functions {
+    private final int BUTTON_WIDTH = 90, BUTTON_HEIGHT = 65;
+
+    Button[] buttons = Button.values();
+    JButton[] guiButtons = new JButton[Button.values().length];
+
+    private JLabel label;
+    private int firstOperand, secondOperand, operator;
+
+    public Functions(JLabel label) {
+        label.setText("0");
+        this.label = label;
+    }
+
+    public JButton[] getButtons(int verticalGap) {
+        for(int i = 0; i < Button.values().length; i++) {
+            guiButtons[i] = buttons[i].guiButton;
+            guiButtons[i].addActionListener(listener);
+            if(buttons[i] == Button.EQUALS)
+                guiButtons[i].setPreferredSize(new Dimension((BUTTON_WIDTH*2)+5, BUTTON_HEIGHT));
+            else
+                guiButtons[i].setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+        }
+        
+        return guiButtons;
+        
+    }
+
+    private ActionListener listener = (e) -> {
+        for (Button button : buttons) {
+            if(e.getSource() == button.guiButton) {
+                checkButton(button);
+            }
+        }
+    };
+
+    private void checkButton(Button button) {
+        switch(button) {
+            case Button.NUMBER_0: case Button.NUMBER_1: case Button.NUMBER_2: case Button.NUMBER_3: 
+            case Button.NUMBER_4: case Button.NUMBER_5: case Button.NUMBER_6: 
+            case Button.NUMBER_7: case Button.NUMBER_8: case Button.NUMBER_9:
+                if(label.getText().charAt(0) == '0')
+                    label.setText("");
+                label.setText(label.getText().concat(button.text));
+                break;
+                
+            case Button.DELETE: 
+                label.setText(label.getText().substring(0, label.getText().length() - 1));
+                if(label.getText().equals(""))
+                    label.setText("0");
+                break;
+
+            case Button.ALL_CLEAR: 
+                label.setText("0");
+                break; 
+
+            case Button.PLUS: 
+                firstOperand = Integer.parseInt(label.toString());
+                break;
+                
+        }
+    }
+}
+
+enum Button {
     ALL_CLEAR("AC", Color.ORANGE), 
     DELETE("DEL", Color.ORANGE), 
     MODULUS("%", Color.ORANGE), 
@@ -29,96 +93,17 @@ enum Buttons {
     EQUALS("=", Color.ORANGE);
 
     JButton guiButton;
+    String text;
+    Color color;
 
-    Buttons(String text, Color color) {
-        this.guiButton = new JButton(text);
-        this.guiButton.setBackground(color);
-        this.guiButton.setFocusable(false);
-        this.guiButton.setFont(new Font("Open Sans", Font.BOLD, 20));
+    Button(String text, Color color) {
+        this.color = color;
+        this.text = text;
+        guiButton = new JButton(text);
+        guiButton.setBackground(color);
+        guiButton.setFont(new Font("Open Sans", Font.BOLD, 20));
+        guiButton.setFocusable(false);
+        guiButton.setBorder(BorderFactory.createRaisedBevelBorder());
     }
 }
 
-public class Functions implements ActionListener{
-    
-    private static final int BUTTON_WIDTH = 90, BUTTON_HEIGHT = 70;
-    private static final int NUMBER_OF_BUTTONS = 19;
-    private static Buttons[] buttons = Buttons.values();
-
-
-    public static JButton[] getButtons(int verticalGap) {
-        JButton[] guiButtons = new JButton[NUMBER_OF_BUTTONS];
-
-        for(int i = 0; i < NUMBER_OF_BUTTONS; i++) {
-            guiButtons[i] = buttons[i].guiButton;
-            guiButtons[i].setBorder(BorderFactory.createRaisedBevelBorder());
-            if(buttons[i] == Buttons.EQUALS)
-                guiButtons[i].setPreferredSize(new Dimension((BUTTON_WIDTH*2)+5, BUTTON_HEIGHT));
-            else
-                guiButtons[i].setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
-        }
-        
-        return guiButtons;
-    }
-
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == Buttons.ALL_CLEAR.guiButton) {
-
-        }
-        else if(e.getSource() == Buttons.DELETE.guiButton) {
-
-        }
-        else if(e.getSource() == Buttons.MODULUS.guiButton) {
-
-        }
-        else if(e.getSource() == Buttons.PLUS.guiButton) {
-
-        }
-        else if(e.getSource() == Buttons.NUMBER_7.guiButton) {
-
-        }
-        else if(e.getSource() == Buttons.NUMBER_8.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.NUMBER_9.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.MINUS.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.NUMBER_4.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.NUMBER_5.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.NUMBER_6.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.TIMES.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.NUMBER_1.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.NUMBER_2.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.NUMBER_3.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.DIVIDE.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.NUMBER_0.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.POINT.guiButton) {
-            
-        }
-        else if(e.getSource() == Buttons.EQUALS.guiButton) {
-            
-        }
-    }
-}
