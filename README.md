@@ -15,3 +15,5 @@ The workspace is created in VSCode and contains two folders by default, where:
 ## Run Jar File
 - Set the the directory to the root folder using `cd` command
 - Run the jar file using the command `java -jar .\Calculator.jar`
+
+![alt text](image.png)

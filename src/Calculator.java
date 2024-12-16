@@ -1,3 +1,4 @@
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import java.awt.Color;
@@ -22,7 +23,9 @@ public class Calculator extends JFrame{
     }
 
     private Calculator() {
+        ImageIcon icon = new ImageIcon("calculator.jpg");
         this.setTitle(TITLE);
+        this.setIconImage(icon.getImage());
         this.setAlwaysOnTop(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
