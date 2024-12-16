@@ -1,4 +1,4 @@
-## Stopwatch Program in Java
+## Calculator Program in Java
 This is a calculator program made using java swing!
 
 The workspace is created in VSCode and contains two folders by default, where:
