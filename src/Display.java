@@ -7,11 +7,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class Display extends JPanel{
-    private final int WIDTH = 400, HEIGHT = 100;
+    private final int PANEL_WIDTH = 400, PANEL_HEIGHT = 100;
     private JLabel label = new JLabel();
 
     public Display() {
-        this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         this.setBackground(Color.BLACK);
         this.setForeground(Color.LIGHT_GRAY);
         this.setBorder(BorderFactory.createLineBorder(Color.WHITE, 3, true));
