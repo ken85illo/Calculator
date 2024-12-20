@@ -22,10 +22,8 @@ public class CalculatorButtons {
     
     private double firstOperand = -1, secondOperand = -1;
     private char operator = 0;
-    private boolean isOperatorUsed = false;
-    private boolean isEqualsUsed = false;
-    private boolean isError = false;
-    private boolean isDecimal = false;
+    private boolean paused = false;
+    private boolean pointed = false;
 
     public CalculatorButtons(JLabel label) {
         label.setText("0");
@@ -49,127 +47,121 @@ public class CalculatorButtons {
     }
 
     private ActionListener listener = (e) -> {
-        for (Button button : Button.values()) {
-            if(e.getSource() == button.guiButton) {
-                checkButton(button);
-
-            }
-        }
+        for (Button button : Button.values()) 
+        if(e.getSource() == button.guiButton) 
+            checkButton(button);
+        System.out.println(firstOperand + " " + operator + " " + secondOperand);
     };
 
     private void checkButton(Button button) {
         this.setTextWithDelayEffect(label.getText());
 
         switch(button) {
-            case Button.POINT: case Button.NUMBER_0: 
-            case Button.NUMBER_1: case Button.NUMBER_2: case Button.NUMBER_3: 
+            case Button.POINT: 
+                if(paused)
+                    label.setText(label.getText().concat("0"));
+
+                if(label.getText().length() != MAX_CHARACTERS && !label.getText().endsWith(".") && !pointed) {
+                    label.setText(label.getText().concat("."));
+                    pointed = true;
+                }
+
+                break;
+
+            case Button.NUMBER_0: case Button.NUMBER_1: case Button.NUMBER_2: case Button.NUMBER_3: 
             case Button.NUMBER_4: case Button.NUMBER_5: case Button.NUMBER_6: 
             case Button.NUMBER_7: case Button.NUMBER_8: case Button.NUMBER_9: 
-                if(label.getText().length() == 1 && label.getText().charAt(0) == '0' && button != Button.POINT)
+                if(label.getText().length() == 1 && label.getText().charAt(0) == '0')
                     label.setText("");
-                if(isOperatorUsed || isEqualsUsed || isError) {
+        
+                if(paused) {
                     label.setText("");
-                    isOperatorUsed = false;
-                    isEqualsUsed = false;
-                    isError = false;
-                    isDecimal = false;
-                    if(button == Button.POINT) {
-                        label.setText(label.getText().concat("0"));
-                    }
+                    paused = false;
                 }
 
-                if(label.getText().length() != MAX_CHARACTERS) {
-                    if(button != Button.POINT)
-                        label.setText(decimalFormat.format(Double.parseDouble(label.getText().concat(button.text).replace(",", ""))));
+                if(label.getText().length() != MAX_CHARACTERS) 
+                    label.setText(decimalFormat.format(Double.parseDouble(label.getText().concat(button.text).replace(",", ""))));
 
-                    if(button == Button.POINT && !isDecimal) {
-                        label.setText(label.getText().concat("."));
-                        isDecimal = true;
-                    }
-                }
-                
                 break;
                 
             case Button.DELETE: 
-                if(label.getText().endsWith(".")) 
-                    isDecimal = false;
+                if(label.getText().endsWith("."))
+                    pointed = false;
 
                 label.setText(label.getText().substring(0, label.getText().length() - 1));
                 
                 if(label.getText().equals(""))
                     label.setText("0");
+
                 break;
 
             case Button.ALL_CLEAR: 
                 firstOperand = secondOperand = -1;
                 operator = 0;
-                isDecimal = false;
                 label.setText("0");
                 break; 
 
             case Button.PLUS: case Button.MINUS: case Button.TIMES: case Button.DIVIDE: case Button.MODULUS:
-                if (operator != 0 && isOperatorUsed) {
+                if (paused) {
                     operator = button.text.charAt(0);  
-                    isOperatorUsed = false;
+                    paused = false;
                 }
-                else if(operator == 0 && !isOperatorUsed && !isError) {
-                    if(label.getText().charAt(label.getText().length() - 1) == '.')
+                else if(operator == 0) {
+                    if(label.getText().endsWith("."))
                         label.setText(label.getText().replace(".", ""));
 
                     firstOperand = Double.parseDouble(label.getText().replace(",", ""));
                     operator = button.text.charAt(0);   
                 }
-                else if(secondOperand == -1 && !isOperatorUsed && !isError) {
-                    secondOperand = Double.parseDouble(label.getText().replace(",", ""));
-                    if(secondOperand == 0) {
-                        calculatorError();
-                        return;
-                    }
-
-                    firstOperand = calculate(firstOperand, secondOperand, operator);
+                else if(secondOperand == -1) {
+                    calculate(button);
                     operator = button.text.charAt(0);
-                    secondOperand = -1;
-                    
-                    label.setText(decimalFormat.format(firstOperand));
-                    limitCharacters(MAX_CHARACTERS, label.getText());
                 }
-                isOperatorUsed = true;
+
+                paused = true;
                 
                 break;
 
             case Button.EQUALS:
-                if(operator != 0) {
-                    secondOperand = Double.parseDouble(label.getText().replace(",", ""));
-                    if(secondOperand == 0) {
-                        calculatorError();
-                        return;
-                    }
-
-                    label.setText(decimalFormat.format(calculate(firstOperand, secondOperand, operator)));
-                    limitCharacters(MAX_CHARACTERS, label.getText());
-                    firstOperand = secondOperand = -1;
+                if(operator != 0 && !paused) {
+                    calculate(button);
                     operator = 0;
-                    isEqualsUsed = true;
+                    paused = true;
                 }
         }
     }
 
-    private double calculate(double firstOperand, double secondOperand, char operator) {
+    private void calculate(Button button) {
+        secondOperand = Double.parseDouble(label.getText().replace(",", ""));
+        if(secondOperand == 0) {
+            calculatorError();
+            return;
+        }
+
         switch(operator) {
             case '+':
-                return firstOperand + secondOperand;
+                firstOperand += secondOperand;
+                break;
             case '-':
                 if(firstOperand < secondOperand)
-                    return 0;
-                return firstOperand - secondOperand; 
+                    firstOperand = 0;
+                firstOperand -= secondOperand; 
+                break;
             case '*':
-                return firstOperand * secondOperand; 
+                firstOperand *= secondOperand; 
+                break;
             case '/':
-                return firstOperand / secondOperand; 
+                firstOperand /= secondOperand; 
+                break;
             case '%':
-                return firstOperand % secondOperand; 
+                firstOperand %= secondOperand; 
+                break;
         }
-        return -1;
+
+        secondOperand = -1;
+        
+        label.setText(decimalFormat.format(firstOperand));
+        limitCharacters(MAX_CHARACTERS);
     }
 
     private void setTextWithDelayEffect(String text) {
@@ -186,17 +178,12 @@ public class CalculatorButtons {
         timer.schedule(task, 50);
     }
 
-    private void limitCharacters(int size, String text) {
-        double pointedValue = Double.parseDouble(text.replace(",", ""));
-        if(text.length() > size) {
-            System.out.println((pointedValue - (long)pointedValue));
-            if((pointedValue - (long)pointedValue) == 0)  
+    private void limitCharacters(int size) {
+        if(label.getText().length() > size) {
+            if((firstOperand - (long)firstOperand) == 0)  
                 calculatorError();
-            else {
-                System.out.println("Skibidi Toilet");
-                label.setText(decimalFormat.format(Double.parseDouble(text.replace(",", "").substring(0, size))));;
-
-            }
+            else 
+                label.setText(decimalFormat.format(Double.parseDouble(label.getText().replace(",", "").substring(0, size))));;
         }
     }
 
@@ -205,7 +192,7 @@ public class CalculatorButtons {
         firstOperand = -1;
         operator = 0;
         secondOperand = -1;
-        isError = true;
+        paused = true;
     }
 }
 
