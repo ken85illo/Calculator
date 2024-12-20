@@ -15,9 +15,7 @@ public class CalculatorButtons {
     private final int MAX_CHARACTERS = 14;
 
     private JButton[] guiButtons = new JButton[Button.values().length];
-
     private JLabel label;
-
     private DecimalFormat decimalFormat = new DecimalFormat("#,###.############");
     
     private double firstOperand = -1, secondOperand = -1;
@@ -47,9 +45,9 @@ public class CalculatorButtons {
     }
 
     private ActionListener listener = (e) -> {
-        for (Button button : Button.values()) 
-        if(e.getSource() == button.guiButton) 
-            checkButton(button);
+        for(Button button : Button.values()) 
+            if(e.getSource() == button.guiButton) 
+                checkButton(button);
         System.out.println(firstOperand + " " + operator + " " + secondOperand);
     };
 
@@ -102,28 +100,27 @@ public class CalculatorButtons {
                 break; 
 
             case Button.PLUS: case Button.MINUS: case Button.TIMES: case Button.DIVIDE: case Button.MODULUS:
-                if (paused) {
-                    operator = button.text.charAt(0);  
-                    paused = false;
-                }
-                else if(operator == 0) {
-                    if(label.getText().endsWith("."))
-                        label.setText(label.getText().replace(".", ""));
-
-                    firstOperand = Double.parseDouble(label.getText().replace(",", ""));
-                    operator = button.text.charAt(0);   
-                }
-                else if(secondOperand == -1) {
-                    calculate(button);
-                    operator = button.text.charAt(0);
+                if(!label.getText().equals("ERROR")) {
+                    if (paused) 
+                        operator = button.text.charAt(0);  
+                    else if(operator == 0) {
+                        if(label.getText().endsWith("."))
+                            label.setText(label.getText().replace(".", ""));
+    
+                        firstOperand = Double.parseDouble(label.getText().replace(",", ""));
+                        operator = button.text.charAt(0);   
+                    }
+                    else if(secondOperand == -1) {
+                        calculate(button);
+                        operator = button.text.charAt(0);
+                    }
                 }
 
                 paused = true;
-                
                 break;
 
             case Button.EQUALS:
-                if(operator != 0 && !paused) {
+                if(firstOperand != -1 && operator != 0 && !paused) {
                     calculate(button);
                     operator = 0;
                     paused = true;
