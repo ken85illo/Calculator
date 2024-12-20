@@ -13,7 +13,9 @@ The workspace is created in VSCode and contains two folders by default, where:
 4. Run the Main.java file
 
 ## Run Jar File
-- Set the the directory to the root folder using `cd` command
+- Do `Ctrl + Shift + P` to show command pallete in VSCode
+- Click the `Java: Export Jar` and leave it as default name `Calculator`
+- Open terminal and set the directory to the root folder using `cd` command
 - Run the jar file using the command `java -jar .\Calculator.jar`
 
 ![alt text](image.png)
