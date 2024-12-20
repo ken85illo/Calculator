@@ -15,7 +15,7 @@ public class Calculator extends JFrame{
         Display display = new Display();
         calculator.add(display);
 
-        Functions functions = new Functions(display.getLabel());
+        CalculatorButtons functions = new CalculatorButtons(display.getLabel());
         for (JButton button : functions.getButtons(calculator.VERTICAL_GAP)) 
             calculator.add(button);
 

@@ -10,11 +10,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-public class Functions {
+public class CalculatorButtons {
     private final int BUTTON_WIDTH = 90, BUTTON_HEIGHT = 65;
     private final int MAX_CHARACTERS = 14;
 
-    private Button[] buttons = Button.values();
     private JButton[] guiButtons = new JButton[Button.values().length];
 
     private JLabel label;
@@ -28,39 +27,37 @@ public class Functions {
     private boolean isError = false;
     private boolean isDecimal = false;
 
-    public Functions(JLabel label) {
+    public CalculatorButtons(JLabel label) {
         label.setText("0");
         this.label = label;
+
+        int i = 0;
+        for(Button button : Button.values()) 
+            guiButtons[i++] = button.guiButton;
     }
 
     public JButton[] getButtons(int verticalGap) {
-        for(int i = 0; i < Button.values().length; i++) {
-            guiButtons[i] = buttons[i].guiButton;
-            guiButtons[i].addActionListener(listener);
-            if(buttons[i] == Button.EQUALS)
-                guiButtons[i].setPreferredSize(new Dimension((BUTTON_WIDTH*2)+5, BUTTON_HEIGHT));
+        for(JButton guiButton : guiButtons) {
+            guiButton.addActionListener(listener);
+            if(guiButton.getText() == Button.EQUALS.text)
+                guiButton.setPreferredSize(new Dimension((BUTTON_WIDTH*2)+5, BUTTON_HEIGHT));
             else
-                guiButtons[i].setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
+                guiButton.setPreferredSize(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT));
         }
         
         return guiButtons;
-        
     }
 
     private ActionListener listener = (e) -> {
-        for (Button button : buttons) {
+        for (Button button : Button.values()) {
             if(e.getSource() == button.guiButton) {
-                try {
-                    checkButton(button);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
+                checkButton(button);
+
             }
         }
     };
 
-    private void checkButton(Button button) throws InterruptedException {
-        
+    private void checkButton(Button button) {
         this.setTextWithDelayEffect(label.getText());
 
         switch(button) {
@@ -96,7 +93,6 @@ public class Functions {
             case Button.DELETE: 
                 if(label.getText().endsWith(".")) 
                     isDecimal = false;
-
 
                 label.setText(label.getText().substring(0, label.getText().length() - 1));
                 
@@ -176,7 +172,7 @@ public class Functions {
         return -1;
     }
 
-    private void setTextWithDelayEffect(String text) throws InterruptedException {
+    private void setTextWithDelayEffect(String text) {
         label.setForeground(Color.GRAY);;
         label.setText(text);
 
@@ -187,7 +183,7 @@ public class Functions {
                 label.setForeground(Color.WHITE);
             }
         };
-        timer.schedule(task, 100);
+        timer.schedule(task, 50);
     }
 
     private void limitCharacters(int size, String text) {
